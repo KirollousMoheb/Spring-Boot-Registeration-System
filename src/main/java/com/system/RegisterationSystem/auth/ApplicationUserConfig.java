@@ -1,33 +1,30 @@
 package com.system.RegisterationSystem.auth;
+
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Repository;
+
 import java.util.List;
-import java.util.Optional;
+
 import static com.system.RegisterationSystem.security.ApplicationRoles.*;
-@Repository("fake")
-public class FakeApplicationUserDaoService implements ApplicationUserDao {
 
+@Configuration
+public class ApplicationUserConfig {
     private final PasswordEncoder passwordEncoder;
-
     @Autowired
-    public FakeApplicationUserDaoService(PasswordEncoder passwordEncoder) {
+    public ApplicationUserConfig(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @Override
-    public Optional<ApplicationUser> selectApplicationUserByUsername(String username) {
-        return getApplicationUsers()
-                .stream()
-                .filter(applicationUser -> username.equals(applicationUser.getUsername()))
-                .findFirst();
-    }
-
-    private List<ApplicationUser> getApplicationUsers() {
+    @Bean
+    CommandLineRunner commandLineRunner(ApplicationUserRepository applicationUserRepository){
+    return args -> {
         List<ApplicationUser> applicationUsers = Lists.newArrayList(
                 new ApplicationUser(
-                            "annasmith",
+                        "annasmith",
                         passwordEncoder.encode("password"),
                         USER.getGrantedAuthorities(),
                         true,
@@ -54,8 +51,8 @@ public class FakeApplicationUserDaoService implements ApplicationUserDao {
                         true
                 )
         );
-
-        return applicationUsers;
+        applicationUserRepository.saveAll(applicationUsers);
+    };
     }
 
 }

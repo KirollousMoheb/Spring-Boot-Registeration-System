@@ -11,9 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-
 import java.util.concurrent.TimeUnit;
-
 import static com.system.RegisterationSystem.security.ApplicationPermissions.COURSE_WRITE;
 import static com.system.RegisterationSystem.security.ApplicationRoles.*;
 
@@ -45,11 +43,11 @@ public class ApplicationSecurityConfig {
 
                         .requestMatchers(AUTH_WHITELIST).permitAll()
                         .requestMatchers("/api/**").hasRole(USER.name())
+                        .requestMatchers("info").hasRole(ADMIN.name())
                         .requestMatchers(HttpMethod.DELETE,"/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
                         .requestMatchers(HttpMethod.POST,"/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
                         .requestMatchers(HttpMethod.PUT,"/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
                         .requestMatchers(HttpMethod.GET,"/management/api/**").hasAnyRole(TRAINEE_ADMIN.name(),ADMIN.name())
-
                         .anyRequest().authenticated()
 
                 )
@@ -57,7 +55,7 @@ public class ApplicationSecurityConfig {
                // .httpBasic(withDefaults())
                 .formLogin()
                     .loginPage("/login").permitAll()
-                    .defaultSuccessUrl("/courses",true)
+//                    .defaultSuccessUrl("/courses",true)
                     .passwordParameter("password")
                     .usernameParameter("username")
                 .and()
@@ -99,8 +97,6 @@ public class ApplicationSecurityConfig {
 //
 //        return  new InMemoryUserDetailsManager(user,admin,traineeAdmin);
 //    }
-
-
 
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider(){

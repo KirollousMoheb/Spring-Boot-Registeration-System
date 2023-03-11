@@ -1,19 +1,36 @@
 package com.system.RegisterationSystem.auth;
+import com.system.RegisterationSystem.security.ApplicationRoles;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import java.util.Collection;
 import java.util.Set;
 
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name="users")
 public class ApplicationUser implements UserDetails {
 
-    private final String username;
-    private final String password;
-    private final Set<? extends GrantedAuthority> grantedAuthorities;
-    private final boolean isAccountNonExpired;
-    private final boolean isAccountNonLocked;
-    private final boolean isCredentialsNonExpired;
-    private final boolean isEnabled;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer id;
+
+    private String firstname;
+    private String lastname;
+    private  String username;
+    private  String password;
+    private  boolean isAccountNonExpired;
+    private  boolean isAccountNonLocked;
+    private  boolean isCredentialsNonExpired;
+    private  boolean isEnabled;
+    @Enumerated(EnumType.STRING)
+    private ApplicationRoles role;
+    @Transient
+    private  Set<? extends GrantedAuthority> grantedAuthorities;
+
 
     public ApplicationUser(String username,
                            String password,
@@ -24,8 +41,8 @@ public class ApplicationUser implements UserDetails {
                            boolean isEnabled) {
         this.username = username;
         this.password = password;
-        this.grantedAuthorities = grantedAuthorities;
         this.isAccountNonExpired = isAccountNonExpired;
+        this.grantedAuthorities = grantedAuthorities;
         this.isAccountNonLocked = isAccountNonLocked;
         this.isCredentialsNonExpired = isCredentialsNonExpired;
         this.isEnabled = isEnabled;

@@ -1,10 +1,9 @@
 package com.system.RegisterationSystem.security;
-
 import com.google.common.collect.Sets;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
 import java.util.Set;
 import java.util.stream.Collectors;
+
 
 public enum ApplicationRoles {
     USER(Sets.newHashSet()),ADMIN(Sets.newHashSet(
