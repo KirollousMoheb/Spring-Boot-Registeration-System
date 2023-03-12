@@ -1,5 +1,4 @@
 package com.system.RegisterationSystem.auth;
-import com.system.RegisterationSystem.security.ApplicationRoles;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
