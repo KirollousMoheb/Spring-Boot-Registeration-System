@@ -1,17 +1,23 @@
 package com.system.RegisterationSystem.security;
 import com.system.RegisterationSystem.auth.ApplicationUserService;
+import com.system.RegisterationSystem.jwt.JwtConfig;
+import com.system.RegisterationSystem.jwt.JwtSecretKey;
+import com.system.RegisterationSystem.jwt.JwtTokenVerifier;
+import com.system.RegisterationSystem.jwt.JwtUsernameAndPasswordAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import java.util.concurrent.TimeUnit;
+
 import static com.system.RegisterationSystem.security.ApplicationPermissions.COURSE_WRITE;
 import static com.system.RegisterationSystem.security.ApplicationRoles.*;
 
@@ -24,14 +30,21 @@ public class ApplicationSecurityConfig {
     };
     private final PasswordEncoder passwordEncoder;
     private final ApplicationUserService applicationUserService;
+    private final JwtConfig jwtConfig;
+    private final JwtSecretKey secretKey;
 
     @Autowired
     public ApplicationSecurityConfig(PasswordEncoder passwordEncoder,
-                                     ApplicationUserService applicationUserService) {
+                                     ApplicationUserService applicationUserService, JwtConfig jwtConfig, JwtSecretKey secretKey) {
         this.passwordEncoder = passwordEncoder;
         this.applicationUserService = applicationUserService;
+        this.jwtConfig = jwtConfig;
+        this.secretKey = secretKey;
     }
-
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
 
@@ -39,6 +52,12 @@ public class ApplicationSecurityConfig {
 //                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 //                .and()
                 .csrf().disable()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager(
+                        http.getSharedObject(AuthenticationConfiguration.class)), jwtConfig, secretKey))
+                .addFilterAfter(new JwtTokenVerifier(secretKey.secretKey(),jwtConfig),JwtUsernameAndPasswordAuthenticationFilter.class)
                 .authorizeHttpRequests((auth) -> auth
 
                         .requestMatchers(AUTH_WHITELIST).permitAll()
@@ -51,26 +70,30 @@ public class ApplicationSecurityConfig {
                         .anyRequest().authenticated()
 
                 )
-                .authenticationProvider(daoAuthenticationProvider())
+                .authenticationProvider(daoAuthenticationProvider());
                // .httpBasic(withDefaults())
-                .formLogin()
-                    .loginPage("/login").permitAll()
-//                    .defaultSuccessUrl("/courses",true)
-                    .passwordParameter("password")
-                    .usernameParameter("username")
-                .and()
-                .rememberMe()
-                    .tokenValiditySeconds((int)TimeUnit.DAYS.toSeconds(21))//2 weeks for session
-                    .key("asdfasfas")
-                    .rememberMeParameter("remember-me")
-                .and()
-                    .logout()
-                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout","GET"))
-                    .logoutUrl("/logout")
-                    .clearAuthentication(true)
-                    .invalidateHttpSession(true)
-                    .deleteCookies("JSESSIONID","remember-me")
-                    .logoutSuccessUrl("/login");
+
+
+        //Form Based AUTHENTICATION CONFIG
+
+//                .formLogin()
+//                    .loginPage("/login").permitAll()
+////                    .defaultSuccessUrl("/courses",true)
+//                    .passwordParameter("password")
+//                    .usernameParameter("username")
+//                .and()
+//                .rememberMe()
+//                    .tokenValiditySeconds((int)TimeUnit.DAYS.toSeconds(21))//2 weeks for session
+//                    .key("asdfasfas")
+//                    .rememberMeParameter("remember-me")
+//                .and()
+//                    .logout()
+//                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout","GET"))
+//                    .logoutUrl("/logout")
+//                    .clearAuthentication(true)
+//                    .invalidateHttpSession(true)
+//                    .deleteCookies("JSESSIONID","remember-me")
+//                    .logoutSuccessUrl("/login");
         return http.build();
 
     }
