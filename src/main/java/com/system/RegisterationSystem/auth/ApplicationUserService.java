@@ -1,7 +1,6 @@
 package com.system.RegisterationSystem.auth;
 import com.system.RegisterationSystem.security.ApplicationRoles;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.config.core.userdetails.UserDetailsResourceFactoryBean;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
