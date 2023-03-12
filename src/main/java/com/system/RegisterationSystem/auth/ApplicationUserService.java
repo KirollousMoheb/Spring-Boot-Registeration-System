@@ -1,11 +1,19 @@
 package com.system.RegisterationSystem.auth;
+import com.system.RegisterationSystem.security.ApplicationRoles;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.config.core.userdetails.UserDetailsResourceFactoryBean;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.springframework.security.config.core.userdetails.UserDetailsResourceFactoryBean.fromString;
+
 
 @Service
 public class ApplicationUserService implements UserDetailsService {
@@ -23,6 +31,16 @@ public class ApplicationUserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         List<ApplicationUser> applicationUsers=applicationUserRepository.findAll();
+        for (int i=0;i<applicationUsers.size();i++){
+            String role=applicationUsers.get(i).getRole();
+            ApplicationRoles roleenum=ApplicationRoles.fromString(role);
+            Set<SimpleGrantedAuthority> permissions=roleenum.getPermissions().stream()
+                    .map(permission->new SimpleGrantedAuthority((permission.getPermission())))
+                    .collect(Collectors.toSet());
+            permissions.add(new SimpleGrantedAuthority("ROLE_"+role));
+            applicationUsers.get(i).setGrantedAuthorities(permissions);
+            permissions.clear();
+        }
          return (applicationUsers.stream()
                  .filter(user -> user.getUsername().equals(username)).findFirst().orElseThrow(() ->
                          new UsernameNotFoundException(String.format("Username %s not found", username))

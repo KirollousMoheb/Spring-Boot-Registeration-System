@@ -43,7 +43,7 @@ public class ApplicationSecurityConfig {
 
                         .requestMatchers(AUTH_WHITELIST).permitAll()
                         .requestMatchers("/api/**").hasRole(USER.name())
-                        .requestMatchers("info").hasRole(ADMIN.name())
+                        .requestMatchers(HttpMethod.GET,"/info").hasAuthority(COURSE_WRITE.getPermission())
                         .requestMatchers(HttpMethod.DELETE,"/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
                         .requestMatchers(HttpMethod.POST,"/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
                         .requestMatchers(HttpMethod.PUT,"/management/api/**").hasAuthority(COURSE_WRITE.getPermission())

@@ -26,15 +26,20 @@ public class ApplicationUser implements UserDetails {
     private  boolean isAccountNonLocked;
     private  boolean isCredentialsNonExpired;
     private  boolean isEnabled;
-    @Enumerated(EnumType.STRING)
-    private ApplicationRoles role;
-    @Transient
-    private  Set<? extends GrantedAuthority> grantedAuthorities;
+//    @Enumerated(EnumType.STRING)
+    private String role;
+
+    public void setGrantedAuthorities(Set<? extends GrantedAuthority> grantedAuthorities) {
+        this.grantedAuthorities=Set.copyOf(grantedAuthorities);
+    }
+
+    private transient Set<? extends GrantedAuthority> grantedAuthorities;
 
 
     public ApplicationUser(String username,
                            String password,
                            Set<? extends GrantedAuthority> grantedAuthorities,
+                           String role,
                            boolean isAccountNonExpired,
                            boolean isAccountNonLocked,
                            boolean isCredentialsNonExpired,
@@ -43,6 +48,7 @@ public class ApplicationUser implements UserDetails {
         this.password = password;
         this.isAccountNonExpired = isAccountNonExpired;
         this.grantedAuthorities = grantedAuthorities;
+        this.role=role;
         this.isAccountNonLocked = isAccountNonLocked;
         this.isCredentialsNonExpired = isCredentialsNonExpired;
         this.isEnabled = isEnabled;
