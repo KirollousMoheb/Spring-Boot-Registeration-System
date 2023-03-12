@@ -33,13 +33,6 @@ public enum ApplicationRoles {
         return permissions;
 
     }
-    public Set<SimpleGrantedAuthority> getGrantedAuthorities(String role){
-        Set<SimpleGrantedAuthority> permissions= getPermissions().stream()
-                .map(permission->new SimpleGrantedAuthority((permission.getPermission())))
-                .collect(Collectors.toSet());
-        permissions.add(new SimpleGrantedAuthority("ROLE_"+role));
-        return permissions;
-}
     public static ApplicationRoles fromString(String value) {
         try {
             return (ApplicationRoles.valueOf(value));

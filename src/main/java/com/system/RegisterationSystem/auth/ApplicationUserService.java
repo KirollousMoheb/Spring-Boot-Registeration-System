@@ -12,9 +12,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.springframework.security.config.core.userdetails.UserDetailsResourceFactoryBean.fromString;
-
-
 @Service
 public class ApplicationUserService implements UserDetailsService {
 
@@ -33,8 +30,8 @@ public class ApplicationUserService implements UserDetailsService {
         List<ApplicationUser> applicationUsers=applicationUserRepository.findAll();
         for (int i=0;i<applicationUsers.size();i++){
             String role=applicationUsers.get(i).getRole();
-            ApplicationRoles roleenum=ApplicationRoles.fromString(role);
-            Set<SimpleGrantedAuthority> permissions=roleenum.getPermissions().stream()
+            ApplicationRoles roleEnum=ApplicationRoles.fromString(role);
+            Set<SimpleGrantedAuthority> permissions=roleEnum.getPermissions().stream()
                     .map(permission->new SimpleGrantedAuthority((permission.getPermission())))
                     .collect(Collectors.toSet());
             permissions.add(new SimpleGrantedAuthority("ROLE_"+role));
